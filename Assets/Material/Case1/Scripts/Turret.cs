@@ -2,41 +2,39 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public abstract class Turret : MonoBehaviour, IDamagable // В наследниках не надо наследоваться от интерфейса
+public abstract class Turret : MonoBehaviour
 {
-    protected List<Enemy> _enemies;
-    protected Enemy _nearestTarget = null;
+    private static List<Enemy> _enemies;
 
-    private float _elapsedTime = 0;
-    private float _timerDelay = 2f;
+    [SerializeField] private float _elapsedTime;
+    private bool _isInit = false;
+
+    protected IEnumerable<Enemy> Enemies => _enemies;
 
     protected void Start()
     {
-        _enemies = FindObjectsOfType<Enemy>().ToList();
-    }
-
-    protected void Update()
-    {
-        _elapsedTime += Time.deltaTime;
-
-        if (_elapsedTime >= _timerDelay)
+        if (_isInit == false)
         {
-            _elapsedTime = 0;
-
-            TryShoot();
+            _enemies = FindObjectsOfType<Enemy>().ToList();
         }
+
+        InvokeRepeating(nameof(TryShoot), _elapsedTime, _elapsedTime);
+        _isInit = true;
     }
+
 
     protected void TryShoot()
     {
-        if (_enemies.Count > 0 && FindNearestEnemy()!= null)
-        {
-                _nearestTarget.TakeDamage();
+        Enemy enemy = FindEnemy();
 
-                if (_nearestTarget.IsAlive == false)
-                    _enemies.Remove(_nearestTarget);
+        if (_enemies.Count > 0)
+        {
+            enemy.TakeDamage();
+
+            if (enemy.IsAlive == false)
+                _enemies.Remove(enemy);
         }
     }
 
-    public abstract Enemy FindNearestEnemy(); // обязательно ли делать public? Как защитить?
+    protected abstract Enemy FindEnemy(); 
 }

@@ -1,27 +1,18 @@
 using UnityEngine;
+using System.Linq;
 
 public class TurretRadial : Turret
 {
     [SerializeField] private float _searchRadius = 0;
 
-    public override Enemy FindNearestEnemy()
+    protected override Enemy FindEnemy()
     {
-        float distanceToNearest = Mathf.Infinity;
+        Enemy result = null;
 
-        foreach (Enemy enemy in _enemies)
-        {
-            float currentDistance = (enemy.transform.position - transform.position).magnitude;
+        Collider[] colliders = Physics.OverlapSphere(transform.position, _searchRadius);
 
-            if (currentDistance < distanceToNearest)
-            {
-                _nearestTarget = enemy;
-                distanceToNearest = currentDistance;
-            }
-        }
+        colliders.FirstOrDefault(collider => collider.TryGetComponent(out result));
 
-        if (distanceToNearest > _searchRadius)
-            return null;
-        else
-            return _nearestTarget;
+        return result;
     }
 }

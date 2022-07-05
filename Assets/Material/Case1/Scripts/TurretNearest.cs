@@ -2,20 +2,21 @@ using UnityEngine;
 
 public class TurretNearest : Turret
 {
-    public override Enemy FindNearestEnemy()
+    protected override Enemy FindEnemy()
     {
         float distanceToNearest = Mathf.Infinity;
+        Enemy result = null;
 
-        foreach (Enemy enemy in _enemies)
+        foreach (Enemy enemy in Enemies)
         {
             float currentDistance = (enemy.transform.position - transform.position).magnitude;
 
             if (currentDistance < distanceToNearest)
             {
-                _nearestTarget = enemy;
+                result = enemy;
                 distanceToNearest = currentDistance;
             }
         }
-        return _nearestTarget;
+        return result;
     }
 }
